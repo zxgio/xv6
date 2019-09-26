@@ -50,6 +50,10 @@ TOOLPREFIX := $(shell if i386-jos-elf-objdump -i 2>&1 | grep '^elf32-i386$$' >/d
 	echo "***" 1>&2; exit 1; fi)
 endif
 
+ifdef XV6_QEMU_HOME
+QEMU = $(XV6_QEMU_HOME)/bin/qemu-system-i386
+endif
+
 # If the makefile can't find QEMU, specify its path here
 # QEMU = qemu-system-i386
 
