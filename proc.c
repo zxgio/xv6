@@ -93,7 +93,9 @@ found:
 
   // Allocate kernel stack.
   if((p->kstack = kalloc()) == 0){
+    acquire(&ptable.lock);
     p->state = UNUSED;
+    release(&ptable.lock);
     return 0;
   }
   sp = p->kstack + KSTACKSIZE;
@@ -140,7 +142,10 @@ userinit(void)
   p->tf->eip = 0;  // beginning of initcode.S
 
   safestrcpy(p->name, "initcode", sizeof(p->name));
-  p->cwd = namei("/");
+
+  // Note that we assign p->cwd in forkret, when
+  // returning to userspace after initializing the
+  // inode cache.
 
   // this assignment to p->state lets other cores
   // run this process. the acquire forces the above
@@ -193,7 +198,9 @@ fork(void)
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
     kfree(np->kstack);
     np->kstack = 0;
+    acquire(&ptable.lock);
     np->state = UNUSED;
+    release(&ptable.lock);
     return -1;
   }
   np->sz = curproc->sz;
@@ -275,6 +282,8 @@ wait(void)
   struct proc *p;
   int havekids, pid;
   struct proc *curproc = myproc();
+  pde_t *zpgdir;
+  char *zkstack;
   
   acquire(&ptable.lock);
   for(;;){
@@ -287,15 +296,17 @@ wait(void)
       if(p->state == ZOMBIE){
         // Found one.
         pid = p->pid;
-        kfree(p->kstack);
+        zkstack = p->kstack;
         p->kstack = 0;
-        freevm(p->pgdir);
+        zpgdir = p->pgdir;
         p->pid = 0;
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
         release(&ptable.lock);
+        kfree(zkstack);
+        freevm(zpgdir);
         return pid;
       }
     }
@@ -407,6 +418,7 @@ forkret(void)
     first = 0;
     iinit(ROOTDEV);
     initlog(ROOTDEV);
+    myproc()->cwd = namei("/");
   }
 
   // Return to "caller", actually trapret (see allocproc).
