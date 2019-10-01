@@ -1,7 +1,7 @@
 #include "asm.h"
 #include "memlayout.h"
 #include "mmu.h"
-	
+
 # Each non-boot CPU ("AP") is started up in response to a STARTUP
 # IPI from the boot CPU.  Section B.4.2 of the Multi-Processor
 # Specification says that the AP will start in real mode with CS:IP
@@ -19,10 +19,10 @@
 #
 # This code combines elements of bootasm.S and entry.S.
 
-.code16           
+.code16
 .globl start
 start:
-  cli            
+  cli
 
   # Zero data segment registers DS, ES, and SS.
   xorw    %ax,%ax

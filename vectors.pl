@@ -37,7 +37,7 @@ for(my $i = 0; $i < 256; $i++){
 #     pushl $0
 #     jmp alltraps
 #   ...
-#   
+#
 #   # vector table
 #   .data
 #   .globl vectors
