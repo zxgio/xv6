@@ -338,6 +338,7 @@ scheduler(void)
   c->proc = 0;
 
   for(;;){
+    int ran_something = 0;
     // Enable interrupts on this processor.
     sti();
 
@@ -347,6 +348,7 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
 
+      ran_something = 1;
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
@@ -362,6 +364,9 @@ scheduler(void)
       c->proc = 0;
     }
     release(&ptable.lock);
+
+    if (ran_something==0)
+      halt();
 
   }
 }
