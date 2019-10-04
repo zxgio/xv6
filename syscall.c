@@ -19,8 +19,6 @@ int is_valid_addr(uint addr, uint sz)
     return addr < sz;
   if (addr < PGSIZE)
     return 0;
-  if (addr>=(sz-2*PGSIZE) && addr<(sz-PGSIZE))
-    return 0;
   return addr < sz;
 }
 
@@ -50,10 +48,7 @@ fetchstr(uint addr, char **pp)
   if(!is_valid_addr(addr, sz))
     return -1;
   *pp = (char*)addr;
-  if (sz == 2*PGSIZE) // big bang proc
-    ep = (char *)sz;
-  else
-    ep = (char *)(addr > (sz-PGSIZE) ? sz: (sz-2*PGSIZE));
+  ep = (char *)sz;
   for(s = *pp; s < ep; s++){
     if(*s == 0)
       return s - *pp;
