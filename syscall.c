@@ -13,16 +13,28 @@
 // library system call function. The saved user %esp points
 // to a saved program counter, and then the first argument.
 
+int is_valid_addr(uint addr, uint sz)
+{
+  if (sz == 2*PGSIZE) // big bang proc
+    return addr < sz;
+  if (addr < PGSIZE)
+    return 0;
+  if (addr>=(sz-2*PGSIZE) && addr<(sz-PGSIZE))
+    return 0;
+  return addr < sz;
+}
+
 // Fetch the int at addr from the current process.
 int
 fetchint(uint addr, int *ip)
 {
   struct proc *curproc = myproc();
-
-  if(addr >= curproc->sz || addr+4 > curproc->sz)
-    return -1;
-  *ip = *(int*)(addr);
-  return 0;
+  const uint sz = curproc->sz;
+  if(is_valid_addr(addr, sz) && is_valid_addr(addr + 3, sz)) {
+      *ip = *(int*)(addr);
+      return 0;
+  }
+  return -1;
 }
 
 // Fetch the nul-terminated string at addr from the current process.
@@ -33,11 +45,15 @@ fetchstr(uint addr, char **pp)
 {
   char *s, *ep;
   struct proc *curproc = myproc();
+  const uint sz = curproc->sz;
 
-  if(addr >= curproc->sz)
+  if(!is_valid_addr(addr, sz))
     return -1;
   *pp = (char*)addr;
-  ep = (char*)curproc->sz;
+  if (sz == 2*PGSIZE) // big bang proc
+    ep = (char *)sz;
+  else
+    ep = (char *)(addr > (sz-PGSIZE) ? sz: (sz-2*PGSIZE));
   for(s = *pp; s < ep; s++){
     if(*s == 0)
       return s - *pp;
@@ -61,9 +77,11 @@ argptr(int n, char **pp, int size)
   int i;
   struct proc *curproc = myproc();
 
+  if(size < 0)
+    return -1;
   if(argint(n, &i) < 0)
     return -1;
-  if(size < 0 || (uint)i >= curproc->sz || (uint)i+size > curproc->sz)
+  if(i < PGSIZE || (uint)i >= curproc->sz || (uint)i+size > curproc->sz)
     return -1;
   *pp = (char*)i;
   return 0;
