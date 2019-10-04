@@ -11,13 +11,14 @@ int
 main(void)
 {
   int pid, wpid;
+  const char * const console = "console";
 
-  if(open("console", O_RDWR) < 0){
-    mknod("console", 1, 1);
-    open("console", O_RDWR);
+  if(open(console, O_RDONLY) < 0){
+    mknod(console, 1, 1);
+    open(console, O_RDONLY);
   }
-  dup(0);  // stdout
-  dup(0);  // stderr
+  open(console, O_RDWR);  // stdout
+  dup(1);  // stderr
 
   for(;;){
     printf(1, "init: starting sh\n");
