@@ -15,3 +15,5 @@ kernelmemfs
 mkfs
 .gdbinit
 tags
+core
+cscope.out

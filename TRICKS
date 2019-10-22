@@ -4,29 +4,6 @@ might be worth pointing out in a longer explanation or in class.
 
 ---
 
-[2009/07/12: No longer relevant; forkret1 changed
-and this is now cleaner.]
-
-forkret1 in trapasm.S is called with a tf argument.
-In order to use it, forkret1 copies the tf pointer into
-%esp and then jumps to trapret, which pops the
-register state out of the trap frame.  If an interrupt
-came in between the mov tf, %esp and the iret that
-goes back out to user space, the interrupt stack frame
-would end up scribbling over the tf and whatever memory
-lay under it.
-
-Why is this safe?  Because forkret1 is only called
-the first time a process returns to user space, and
-at that point, cp->tf is set to point to a trap frame
-constructed at the top of cp's kernel stack.  So tf
-*is* a valid %esp that can hold interrupt state.
-
-If other tf's were used in forkret1, we could add
-a cli before the mov tf, %esp.
-
----
-
 In pushcli, must cli() no matter what.  It is not safe to do
 
   if(cpus[cpu()].ncli == 0)
