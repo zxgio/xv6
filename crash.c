@@ -2,10 +2,9 @@
 #include "stat.h"
 #include "user.h"
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-  char *buf = (char *)(argc-1);
-  buf[0] = 'a';
-  exit();
+	char *buf = (char *)(argc - 1);
+	buf[0] = 'a';
+	exit();
 }
