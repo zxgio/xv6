@@ -95,6 +95,8 @@ ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]nopie'),)
 CFLAGS += -fno-pie -nopie
 endif
 
+all: fs.img xv6.img
+
 # run in emulators
 
 # try to generate a unique GDB port
