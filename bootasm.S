@@ -64,13 +64,7 @@ start32:
   movl    $start, %esp
   call    bootmain
 
-  # If bootmain returns (it shouldn't), trigger a Bochs
-  # breakpoint if running under Bochs, then loop.
-  movw    $0x8a00, %ax            # 0x8a00 -> port 0x8a00
-  movw    %ax, %dx
-  outw    %ax, %dx
-  movw    $0x8ae0, %ax            # 0x8ae0 -> port 0x8a00
-  outw    %ax, %dx
+  # If bootmain returns (it shouldn't), loop.
 spin:
   jmp     spin
 
