@@ -84,7 +84,7 @@ static int mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm)
 //
 // setupkvm() and exec() set up every page table like this:
 //
-//   0..KERNBASE: user memory (text+data+stack+heap), mapped to
+//   PGSIZE..KERNBASE: user memory (text+data+stack+heap), mapped to
 //                phys memory allocated by the kernel
 //   KERNBASE..KERNBASE+EXTMEM: mapped to 0..EXTMEM (for I/O space)
 //   KERNBASE+EXTMEM..data: mapped to EXTMEM..V2P(data)
