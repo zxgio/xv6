@@ -97,6 +97,11 @@ endif
 
 all: fs.img xv6.img
 
+cscope:
+	cscope -R -q -b -k
+
+.PHONY: cscope
+
 # run in emulators
 
 # try to generate a unique GDB port
@@ -229,7 +234,7 @@ fs.img: mkfs README $(UPROGS)
 -include *.d
 
 clean:
-	rm -f cscope.out tags core \
+	rm -f cscope.out cscope.in.out cscope.po.out tags core \
 	*.o *.d *.asm *.sym vectors.S bootblock entryother \
 	initcode initcode.out kernel xv6.img fs.img kernelmemfs \
 	xv6memfs.img mkfs .gdbinit \

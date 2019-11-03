@@ -17,3 +17,5 @@ mkfs
 tags
 core
 cscope.out
+cscope.in.out
+cscope.po.out
