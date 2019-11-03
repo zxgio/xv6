@@ -68,7 +68,7 @@ ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
 LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1)
 HOSTCC = gcc
 
-# Disable PIE when possible (for Ubuntu 16.10 toolchain)
+# Disable PIE when possible
 ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]no-pie'),)
 CFLAGS += -fno-pie -no-pie
 endif
@@ -76,10 +76,10 @@ ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]nopie'),)
 CFLAGS += -fno-pie -nopie
 endif
 
-all: fs.img xv6.img
+all: fs.img xv6.img cscope.out
 
-cscope:
-	cscope -R -q -b -k
+cscope.out: $(wildcard *.[ch])
+	cscope -q -b -k -R
 
 # run in emulators
 
@@ -207,6 +207,7 @@ fs.img: mkfs README $(UPROGS)
 	$(STRIP) $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
 
+# include (automagically generated) dependency files if present
 -include *.d
 
 clean:
@@ -216,4 +217,4 @@ clean:
 	xv6memfs.img mkfs .gdbinit \
 	$(UPROGS)
 
-.PHONY: cscope clean
+.PHONY: clean
