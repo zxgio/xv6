@@ -170,7 +170,7 @@ void switchuvm(struct proc *p)
 	popcli();
 }
 
-// Load the initcode into address 0 of pgdir.
+// Load the initcode into address PGSIZE of pgdir.
 // sz must be less than a page.
 void inituvm(pde_t *pgdir, char *init, uint sz)
 {
