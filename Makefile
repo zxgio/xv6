@@ -81,6 +81,7 @@ all: fs.img xv6.img cscope.out
 
 cscope.out: $(wildcard *.[ch])
 	cscope -q -b -k -R
+	@echo -e 'You might want to:\nexport CSCOPE_DB=$$(pwd)/cscope.out'
 
 # run in emulators
 
