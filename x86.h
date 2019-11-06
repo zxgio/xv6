@@ -132,7 +132,7 @@ static inline void halt()
 	asm volatile("hlt" : :);
 }
 
-//PAGEBREAK: 36
+
 // Layout of the trap frame built on the stack by the
 // hardware and by trapasm.S, and passed to trap().
 struct trapframe {
