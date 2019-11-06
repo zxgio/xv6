@@ -84,7 +84,7 @@ static struct proc *allocproc(void)
 
 found:
 	p->state = EMBRYO;
-	p->pid = nextpid++;
+	p->pid = nextpid++; // TODO: handle wrapping
 
 	release(&ptable.lock);
 
