@@ -39,11 +39,11 @@ endif
 
 # Try to infer the correct QEMU
 # ifndef QEMU
-# QEMU = $(shell if which qemu > /dev/null; \
+# QEMU = $(shell if which qemu 2> /dev/null; \
 # 	then echo qemu; exit; \
-# 	elif which qemu-system-i386 > /dev/null; \
+# 	elif which qemu-system-i386 2> /dev/null; \
 # 	then echo qemu-system-i386; exit; \
-# 	elif which qemu-system-x86_64 > /dev/null; \
+# 	elif which qemu-system-x86_64 2> /dev/null; \
 # 	then echo qemu-system-x86_64; exit; \
 # 	else \
 # 	qemu=/Applications/Q.app/Contents/MacOS/i386-softmmu.app/Contents/MacOS/i386-softmmu; \
