@@ -327,11 +327,11 @@ void scheduler(void)
 	struct proc *p;
 	struct cpu *c = mycpu();
 	c->proc = 0;
+	// Enable interrupts on this processor.
+	sti();
 
 	for (;;) {
 		int ran_something = 0;
-		// Enable interrupts on this processor.
-		sti();
 
 		// Loop over process table looking for process to run.
 		acquire(&ptable.lock);
