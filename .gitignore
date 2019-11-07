@@ -16,7 +16,7 @@ kernel/initcode
 kernel/initcode.out
 kernel/kernel
 kernel/kernelmemfs
-mkfs/mkfs
+utils/mkfs
 .gdbinit
 tags
 core
