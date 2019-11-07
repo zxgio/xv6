@@ -129,7 +129,7 @@ $K/bootblock: $K/bootasm.S $K/bootmain.c
 	$(LD) $(LDFLAGS) -N -e start -Ttext 0x7C00 -o $K/bootblock.o $K/bootasm.o $K/bootmain.o
 	$(OBJDUMP) -S $K/bootblock.o > $K/bootblock.asm
 	$(OBJCOPY) -S -O binary -j .text $K/bootblock.o $K/bootblock
-	$K/sign.pl $K/bootblock
+	utils/sign.pl $K/bootblock
 
 $K/entryother: $K/entryother.S
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$K -o $K/entryother.o -c $K/entryother.S
@@ -160,8 +160,8 @@ $K/kernel: $(KERNEL_OBJS) $K/entry.o $K/entryother $K/initcode $K/kernel.ld
 # 	$(OBJDUMP) -S kernelmemfs > kernelmemfs.asm
 # 	$(OBJDUMP) -t kernelmemfs | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernelmemfs.sym
 
-$K/vectors.S: $K/vectors.pl
-	$K/vectors.pl > $K/vectors.S
+$K/vectors.S: utils/vectors.pl
+	utils/vectors.pl > $K/vectors.S
 
 ULIB = $U/ulib.o $U/usys.o $U/printf.o $U/umalloc.o
 
@@ -176,8 +176,8 @@ $U/_forktest: $U/forktest.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0x1000 -o $U/_forktest $U/forktest.o $U/ulib.o $U/usys.o
 	$(OBJDUMP) -S $U/_forktest > $U/forktest.asm
 
-mkfs/mkfs: mkfs/mkfs.c $K/fs.h
-	$(HOSTCC) -Werror -Wall -I. -o mkfs/mkfs mkfs/mkfs.c
+utils/mkfs: utils/mkfs.c $K/fs.h
+	$(HOSTCC) -Werror -Wall -I. -o utils/mkfs utils/mkfs.c
 
 # Prevent deletion of intermediate files, e.g. cat.o, after first build, so
 # that disk image changes after first build are persistent until clean.  More
@@ -204,9 +204,9 @@ UPROGS=\
 	$U/_wc\
 	$U/_zombie
 
-fs.img: mkfs/mkfs $U/README $(UPROGS)
-	$(STRIP) $(UPROGS)
-	mkfs/mkfs fs.img $U/README $(UPROGS)
+fs.img: utils/mkfs $U/README $(UPROGS)
+	# $(STRIP) $(UPROGS)
+	utils/mkfs fs.img $U/README $(UPROGS)
 
 # include (automagically generated) dependency files if present
 -include $K/*.d $U/*.d
@@ -218,7 +218,7 @@ clean:
 	$U/*.o $U/*.d $U/*.asm $U/*.sym \
 	$K/vectors.S $K/bootblock $K/entryother \
 	$K/initcode $K/initcode.out $K/kernel xv6.img fs.img kernelmemfs \
-	xv6memfs.img mkfs/mkfs .gdbinit \
+	xv6memfs.img utils/mkfs .gdbinit \
 	$(UPROGS)
 
 .PHONY: clean
