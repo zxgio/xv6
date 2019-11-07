@@ -54,10 +54,15 @@ Assolutamente non necessario per xv6, ma visto che alcuni studenti mi hanno chie
 
 Una volta clonato questo repository (`git clone https://github.com/zxgio/xv6-SETI.git`) potrete usare:
 - `make` (ri)compila xv6, preparando le immagini dei dischi virtuali
-- `make qemu-nox` lancia xv6; uscite con `poweroff` oppure con la sequenza `ctrl-A`, seguita da `x`
+- `make clean` cancella i file prodotti da make
+
+e, per mandarlo in esecuzione:
+- `make qemu-nox` lancia xv6; uscite con `poweroff` oppure con la sequenza `ctrl+A`, seguita da `x`
 - `make qmeu-nox-gdb` prepara xv6 per il debugging, per cui dovrete lanciare gdb da un altro terminale
   - se lanciando gdb ottenete: `warning: File "....xv6/.gdbinit" auto-loading has been declined ...`
     aggiungete la direttiva `add-auto-load-safe-path` al vostro `~/.gdbinit` (come suggerito da gdb stesso)
-- `make clean` cancella i file prodotti da make
-    
-se ricompilate QEMU vi conviene impostare la variabile d'ambiente XV6_SETI_QEMU_HOME (vedi Makefile)
+
+Durante l'esecuzione `ctrl+P`, catturato dalla console di xv6, mostra la lista dei processi.
+Invece, `ctrl+A`, seguito da `c`, (dis)attiva la console di QEMU. Dalla console potete uscire dall'emulazione con `q` o, per esempio, vedere la tabella delle pagine con `info mem`.
+
+Se ricompilate QEMU vi conviene impostare la variabile d'ambiente XV6_SETI_QEMU_HOME (vedi Makefile)
