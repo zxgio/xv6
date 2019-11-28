@@ -10,8 +10,7 @@ Alcune cose sono state modificate, in particolare:
 
 ## Software necessario/suggerito (istruzioni per Ubuntu 18.04)
 
-Installate i pacchetti: `build-essential gcc-multilib libsdl1.2-dev libtool-bin libglib2.0-dev libz-dev libp
-ixman-1-dev git cscope ctags wget`
+Installate i pacchetti: `build-essential gcc-multilib libsdl1.2-dev libtool-bin libglib2.0-dev libz-dev libpixman-1-dev git cscope ctags wget`
 
 ### gdb
 
