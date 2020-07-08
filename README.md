@@ -10,8 +10,7 @@ Alcune cose sono state modificate, in particolare:
 
 ## Software necessario/suggerito (istruzioni per Ubuntu 18.04)
 
-Installate i pacchetti: `build-essential gcc-multilib libsdl1.2-dev libtool-bin libglib2.0-dev libz-dev libp
-ixman-1-dev git cscope ctags wget`
+Installate i pacchetti: `build-essential gcc-multilib libsdl1.2-dev libtool-bin libglib2.0-dev libz-dev libpixman-1-dev git cscope ctags wget`
 
 ### gdb
 
@@ -58,7 +57,7 @@ Una volta clonato questo repository (`git clone https://github.com/zxgio/xv6-SET
 
 e, per mandarlo in esecuzione:
 - `make qemu-nox` lancia xv6; uscite con `poweroff` oppure con la sequenza `ctrl+A`, seguita da `x`
-- `make qmeu-nox-gdb` prepara xv6 per il debugging, per cui dovrete lanciare gdb da un altro terminale
+- `make qmeu-nox-gdb` prepara xdocker run --name xv6 --rm -it xv6 qemu-system-i386 -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp 1 -m 256 -nographicv6 per il debugging, per cui dovrete lanciare gdb da un altro terminale
   - se lanciando gdb ottenete: `warning: File "....xv6/.gdbinit" auto-loading has been declined ...`
     aggiungete la direttiva `add-auto-load-safe-path` al vostro `~/.gdbinit` (come suggerito da gdb stesso)
 
@@ -66,3 +65,16 @@ Durante l'esecuzione `ctrl+P`, catturato dalla console di xv6, mostra la lista d
 Invece, `ctrl+A`, seguito da `c`, (dis)attiva la console di QEMU. Dalla console potete uscire dall'emulazione con `q` o, per esempio, vedere la tabella delle pagine con `info mem`.
 
 Se ricompilate QEMU vi conviene impostare la variabile d'ambiente XV6_SETI_QEMU_HOME (vedi Makefile)
+
+## Docker
+
+Ho aggiunto una versione "Dockerizzata" per assicurare che giri su tutti i sistemi operativi.
+
+L'uso, dopo aver installato Docker, è molto semplice, basta avviare lo script start_docker.sh con il comando:  
+`./start_docker.sh`  
+
+Questo script crea l'immagine e la avvia correttamente ogni volta.
+
+Se si vuole evitare di fare il Docker build ad ogni avvio, dopo avere fatto il primo con successo si puo' usare il comando:  
+`docker run --name xv6 --rm -it xv6 qemu-system-i386 -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp 1 -m 256 -nographic`
+
