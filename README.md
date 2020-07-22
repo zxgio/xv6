@@ -1,6 +1,6 @@
 # xv6 - SETI
 
-Questo è un fork di [xv6](https://github.com/mit-pdos/xv6-public) per il corso di [Sistemi dell'Elaborazione e Trasmissione dell'Informazione](https://unige.it/off.f/2019/ins/36495)
+Questo è un fork di [xv6](https://github.com/mit-pdos/xv6-public) per il corso di [Sistemi dell'Elaborazione e Trasmissione dell'Informazione](https://unige.it/off.f/2020/ins/43095.html)
 
 Alcune cose sono state modificate, in particolare:
 - aggiunto comando `poweroff`, e relativa system call, per "spegnere" xv6 (funziona solo con QEMU)
@@ -8,42 +8,13 @@ Alcune cose sono state modificate, in particolare:
 - stdin/out/error sono aperti con i permessi giusti
 - lo scheduler non va in busy loop quando non c'è nulla da eseguire
 
-## Software necessario/suggerito (istruzioni per Ubuntu 18.04)
+## Software necessario/suggerito (istruzioni per Ubuntu 20.04)
 
-Installate i pacchetti: `build-essential gcc-multilib libsdl1.2-dev libtool-bin libglib2.0-dev libz-dev libpixman-1-dev git cscope ctags wget`
+Installate i pacchetti: `build-essential gcc-multilib git cscope ctags qemu-system`
 
 ### gdb
 
-La versione di default è bacata, conviene ricompilarsi una versione più recente; per esempio:
-```
-mkdir -p /tmp/gdb-src && cd /tmp/gdb-src
-wget https://ftp.gnu.org/gnu/gdb/gdb-8.3.1.tar.xz
-tar xf gdb-8.3.1.tar.xz
-cd gdb-8.3.1/
-./configure --prefix=$HOME/bin/gdb8.3.1 --program-suffix=831 --with-python=/usr/bin/python3
-make && make install
-rm -rf /tmp/gdb-src
-```
-
-inoltre, suggerisco l'uso di [GEF](https://github.com/hugsy/gef); potrebbe tornarvi utile il mio [cheat-sheet](https://github.com/zxgio/gdb_gef-cheatsheet)
-
-### qemu
-
-La versione di default è un po' vecchiotta, potete compilare la più recente con qualcosa tipo:
-
-```
-git clone https://git.qemu.org/git/qemu.git qemu-src
-cd qemu-src
-git submodule init
-git submodule update --recursive
-./configure --prefix=$HOME/bin/qemu
-make -j4 && make install
-```
-
-...andatevi a prendere un caffè, ci vorrà un po' ;)
-
-Poi settate la variable d'ambiente XV6_SETI_QEMU_HOME (vedi Makefile) e PATH
-
+Suggerisco l'uso di [GEF](https://github.com/hugsy/gef); potrebbe tornarvi utile il mio [cheat-sheet](https://github.com/zxgio/gdb_gef-cheatsheet)
 
 ### liquidprompt
 
@@ -56,25 +27,11 @@ Una volta clonato questo repository (`git clone https://github.com/zxgio/xv6-SET
 - `make clean` cancella i file prodotti da make
 
 e, per mandarlo in esecuzione:
-- `make qemu-nox` lancia xv6; uscite con `poweroff` oppure con la sequenza `ctrl+A`, seguita da `x`
-- `make qmeu-nox-gdb` prepara xv6 per il debugging, per cui dovrete lanciare gdb da un altro terminale
+- `./run`, scorciatoia per `\make qemu-nox`, lancia xv6; uscite con `poweroff` oppure con la sequenza `ctrl+A`, seguita da `x`
+  - nota: il backslash prima di `make` evita l'espansione dell'alias, nel caso usiate [Generic Colouriser](https://github.com/garabik/grc), per fare in modo che non ci siano ritardi nell'output dovuti al buffering
+- `./debug`, scorciatoria per `\make qmeu-nox-gdb`, prepara xv6 per il debugging, per cui dovrete lanciare gdb da un altro terminale
   - se lanciando gdb ottenete: `warning: File "....xv6/.gdbinit" auto-loading has been declined ...`
     aggiungete la direttiva `add-auto-load-safe-path` al vostro `~/.gdbinit` (come suggerito da gdb stesso)
 
 Durante l'esecuzione `ctrl+P`, catturato dalla console di xv6, mostra la lista dei processi.
 Invece, `ctrl+A`, seguito da `c`, (dis)attiva la console di QEMU. Dalla console potete uscire dall'emulazione con `q` o, per esempio, vedere la tabella delle pagine con `info mem`.
-
-Se ricompilate QEMU vi conviene impostare la variabile d'ambiente XV6_SETI_QEMU_HOME (vedi Makefile)
-
-## Docker
-
-La versione "dockerizzata", basata su ubuntu, dovrebbe girare su tutti i sistemi operativi.
-
-L'uso, dopo aver installato Docker, è molto semplice, basta avviare lo script start_docker.sh con il comando:
-`./start_docker.sh`
-
-Questo script crea l'immagine e la avvia correttamente ogni volta.
-
-Se si vuole evitare di fare il Docker build ad ogni avvio, dopo avere fatto il primo con successo si puo' usare il comando:
-`docker run --name xv6 --rm -it xv6 qemu-system-i386 -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp 1 -m 256 -nographic`
-

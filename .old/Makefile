@@ -1,51 +1,3 @@
-# try to generate a unique GDB port
-GDBPORT = $(shell expr `id -u` % 5000 + 25000)
-QEMUGDB = -gdb tcp::$(GDBPORT)
-
-# If the makefile can't find QEMU, specify its path here
-# QEMU = qemu-system-i386
-
-# Try to infer the correct QEMU
-ifndef QEMU
-QEMU = $(shell if which qemu > /dev/null; \
-	then echo qemu; exit; \
-	elif which qemu-system-i386 > /dev/null; \
-	then echo qemu-system-i386; exit; \
-	elif which qemu-system-x86_64 > /dev/null; \
-	then echo qemu-system-x86_64; exit; \
-	else \
-	qemu=/Applications/Q.app/Contents/MacOS/i386-softmmu.app/Contents/MacOS/i386-softmmu; \
-	if test -x $$qemu; then echo $$qemu; exit; fi; fi; \
-	echo "***" 1>&2; \
-	echo "*** Error: Couldn't find a working QEMU executable." 1>&2; \
-	echo "*** Is the directory containing the qemu binary in your PATH" 1>&2; \
-	echo "*** or have you tried setting the QEMU variable in Makefile?" 1>&2; \
-	echo "***" 1>&2; exit 1)
-endif
-
-ifndef CPUS
-CPUS := 1
-endif
-
-CC = gcc
-AS = gas
-LD = ld
-STRIP = strip
-OBJCOPY = objcopy
-OBJDUMP = objdump
-CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -Og -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer -I. -fcf-protection=none
-CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
-ASFLAGS = -m32 -gdwarf-2 -Wa,-divide -I.
-LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1) -z noseparate-code # FreeBSD ld wants ``elf_i386_fbsd''
-
-# Disable PIE when possible
-ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]no-pie'),)
-CFLAGS += -fno-pie -no-pie
-endif
-ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]nopie'),)
-CFLAGS += -fno-pie -nopie
-endif
-
 K=kernel
 U=user
 
@@ -79,24 +31,51 @@ KERNEL_OBJS = \
 	$K/vectors.o\
 	$K/vm.o
 
-UPROGS = \
-	$U/_cat\
-	$U/_crash \
-	$U/_echo\
-	$U/_forktest\
-	$U/_grep\
-	$U/_init\
-	$U/_kill\
-	$U/_ln\
-	$U/_ls\
-	$U/_mkdir\
-	$U/_poweroff\
-	$U/_rm\
-	$U/_sh\
-	$U/_stressfs\
-	$U/_usertests\
-	$U/_wc\
-	$U/_zombie
+ifdef XV6_SETI_QEMU_HOME
+QEMU = $(XV6_SETI_QEMU_HOME)/bin/qemu-system-i386
+endif
+
+# If the makefile can't find QEMU, specify its path here
+# QEMU = qemu-system-i386
+
+# Try to infer the correct QEMU
+ifndef QEMU
+QEMU = $(shell if which qemu > /dev/null; \
+	then echo qemu; exit; \
+	elif which qemu-system-i386 > /dev/null; \
+	then echo qemu-system-i386; exit; \
+	elif which qemu-system-x86_64 > /dev/null; \
+	then echo qemu-system-x86_64; exit; \
+	else \
+	qemu=/Applications/Q.app/Contents/MacOS/i386-softmmu.app/Contents/MacOS/i386-softmmu; \
+	if test -x $$qemu; then echo $$qemu; exit; fi; fi; \
+	echo "***" 1>&2; \
+	echo "*** Error: Couldn't find a working QEMU executable." 1>&2; \
+	echo "*** Is the directory containing the qemu binary in your PATH" 1>&2; \
+	echo "*** or have you tried setting the QEMU variable in Makefile?" 1>&2; \
+	echo "***" 1>&2; exit 1)
+endif
+
+CC = gcc
+AS = gas
+LD = ld
+STRIP = strip
+OBJCOPY = objcopy
+OBJDUMP = objdump
+CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -Og -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer -I. -fcf-protection=none  # -mmanual-endbr
+CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
+ASFLAGS = -m32 -gdwarf-2 -Wa,-divide -I.
+# FreeBSD ld wants ``elf_i386_fbsd''
+LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1) -z noseparate-code
+HOSTCC = gcc
+
+# Disable PIE when possible
+ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]no-pie'),)
+CFLAGS += -fno-pie -no-pie
+endif
+ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]nopie'),)
+CFLAGS += -fno-pie -nopie
+endif
 
 all: fs.img xv6.img cscope.out tags
 
@@ -108,13 +87,30 @@ tags:
 	ctags -R .
 
 # run in emulators
+
+# try to generate a unique GDB port
+GDBPORT = $(shell expr `id -u` % 5000 + 25000)
+QEMUGDB = -gdb tcp::$(GDBPORT)
+ifndef CPUS
+CPUS := 1
+endif
 QEMUOPTS = -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 256 $(QEMUEXTRA)
+
+# qemu-memfs: xv6memfs.img
+# 	$(QEMU) -drive file=xv6memfs.img,index=0,media=disk,format=raw -smp $(CPUS) -m 256
+
+# qemu: fs.img xv6.img
+# 	$(QEMU) -serial mon:stdio $(QEMUOPTS)
 
 qemu-nox: fs.img xv6.img
 	$(QEMU) -nographic $(QEMUOPTS)
 
 .gdbinit: .gdbinit.tmpl
 	sed "s/localhost:1234/localhost:$(GDBPORT)/" < $^ > $@
+
+# qemu-gdb: fs.img xv6.img .gdbinit
+# 	@echo "*** Now run 'gdb'." 1>&2
+# 	$(QEMU) -serial mon:stdio $(QEMUOPTS) -S $(QEMUGDB)
 
 qemu-nox-gdb: fs.img xv6.img .gdbinit
 	@echo "*** Now run 'gdb'." 1>&2
@@ -124,6 +120,11 @@ xv6.img: $K/bootblock $K/kernel
 	dd if=/dev/zero of=xv6.img count=512 # 256 k = 512 blocks of 512 bytes
 	dd if=$K/bootblock of=xv6.img conv=notrunc
 	dd if=$K/kernel of=xv6.img seek=1 conv=notrunc
+
+# xv6memfs.img: bootblock kernelmemfs
+# 	dd if=/dev/zero of=xv6memfs.img count=10000
+# 	dd if=$K/bootblock of=xv6memfs.img conv=notrunc
+# 	dd if=$K/kernelmemfs of=xv6memfs.img seek=1 conv=notrunc
 
 $K/bootblock: $K/bootasm.S $K/bootmain.c
 	$(CC) $(CFLAGS) -O0 -o $K/bootmain.o -fno-pic -O -nostdinc -I$K -c $K/bootmain.c
@@ -150,6 +151,18 @@ $K/kernel: $(KERNEL_OBJS) $K/entry.o $K/entryother $K/initcode $K/kernel.ld
 	$(OBJDUMP) -S $K/kernel > $K/kernel.asm
 	$(OBJDUMP) -t $K/kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $K/kernel.sym
 
+# kernelmemfs is a copy of kernel that maintains the
+# disk image in memory instead of writing to a disk.
+# This is not so useful for testing persistent storage or
+# exploring disk buffering implementations, but it is
+# great for testing the kernel on real hardware without
+# needing a scratch disk.
+# MEMFSOBJS = $(filter-out ide.o,$(KERNEL_OBJS)) memide.o
+# kernelmemfs: $(MEMFSOBJS) entry.o entryother initcode kernel.ld fs.img
+# 	$(LD) $(LDFLAGS) -T kernel.ld -o kernelmemfs entry.o  $(MEMFSOBJS) -b binary initcode entryother fs.img
+# 	$(OBJDUMP) -S kernelmemfs > kernelmemfs.asm
+# 	$(OBJDUMP) -t kernelmemfs | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernelmemfs.sym
+
 $K/vectors.S: utils/vectors.pl
 	utils/vectors.pl > $K/vectors.S
 
@@ -167,13 +180,32 @@ $U/_forktest: $U/forktest.o $(ULIB)
 	$(OBJDUMP) -S $U/_forktest > $U/forktest.asm
 
 utils/mkfs: utils/mkfs.c $K/fs.h
-	$(CC) -Werror -Wall -I. -o utils/mkfs utils/mkfs.c
+	$(HOSTCC) -Werror -Wall -I. -o utils/mkfs utils/mkfs.c
 
 # Prevent deletion of intermediate files, e.g. cat.o, after first build, so
 # that disk image changes after first build are persistent until clean.  More
 # details:
 # http://www.gnu.org/software/make/manual/html_node/Chained-Rules.html
 .PRECIOUS: %.o
+
+UPROGS=\
+	$U/_cat\
+	$U/_crash \
+	$U/_echo\
+	$U/_forktest\
+	$U/_grep\
+	$U/_init\
+	$U/_kill\
+	$U/_ln\
+	$U/_ls\
+	$U/_mkdir\
+	$U/_poweroff\
+	$U/_rm\
+	$U/_sh\
+	$U/_stressfs\
+	$U/_usertests\
+	$U/_wc\
+	$U/_zombie
 
 fs.img: utils/mkfs $U/README $(UPROGS)
 	# $(STRIP) $(UPROGS)
