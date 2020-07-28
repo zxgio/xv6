@@ -98,14 +98,11 @@ UPROGS = \
 	$U/_wc\
 	$U/_zombie
 
-all: fs.img xv6.img cscope.out tags
+all: fs.img xv6.img cscope.out
 
 cscope.out: $(wildcard *.[ch])
 	cscope -q -b -k -R
 	@echo -e 'You might want to:\nexport CSCOPE_DB=$$(pwd)/cscope.out'
-
-tags:
-	ctags -R .
 
 # run in emulators
 QEMUOPTS = -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 256 $(QEMUEXTRA)
@@ -183,7 +180,7 @@ fs.img: utils/mkfs $U/README $(UPROGS)
 -include $K/*.d $U/*.d
 
 clean:
-	rm -f cscope.out cscope.in.out cscope.po.out tags core \
+	rm -f cscope.out cscope.in.out cscope.po.out core \
 	*.o *.d *.asm *.sym \
 	$K/*.o $K/*.d $K/*.asm $K/*.sym \
 	$U/*.o $U/*.d $U/*.asm $U/*.sym \

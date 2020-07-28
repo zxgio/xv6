@@ -10,7 +10,7 @@ Alcune cose sono state modificate, in particolare:
 
 ## Software necessario/suggerito (istruzioni per Ubuntu 20.04)
 
-Installate i pacchetti: `build-essential gcc-multilib git cscope ctags qemu-system`
+Installate i pacchetti: `build-essential gcc-multilib git cscope qemu-system`
 
 ### gdb
 
