@@ -30,7 +30,6 @@ endif
 CC = gcc
 AS = gas
 LD = ld
-STRIP = strip
 OBJCOPY = objcopy
 OBJDUMP = objdump
 CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -Og -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer -I. -fcf-protection=none
@@ -173,7 +172,6 @@ utils/mkfs: utils/mkfs.c $K/fs.h
 .PRECIOUS: %.o
 
 fs.img: utils/mkfs $U/README $(UPROGS)
-	# $(STRIP) $(UPROGS)
 	utils/mkfs fs.img $U/README $(UPROGS)
 
 # include (automagically generated) dependency files if present
