@@ -99,7 +99,7 @@ static int mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm)
 
 // This table defines the kernel's mappings, which are present in
 // every process's page table.
-static struct kmap {
+static const struct kmap {
 	void *virt;
 	uint phys_start;
 	uint phys_end;
@@ -115,7 +115,7 @@ static struct kmap {
 pde_t *setupkvm(void)
 {
 	pde_t *pgdir;
-	struct kmap *k;
+	const struct kmap *k;
 
 	if ((pgdir = (pde_t *)kalloc()) == 0)
 		return 0;
