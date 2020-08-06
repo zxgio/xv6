@@ -125,7 +125,7 @@ $K/bootblock: $K/bootasm.S $K/bootmain.c
 	$(CC) $(CFLAGS) -O0 -o $K/bootmain.o -fno-pic -O -nostdinc -I$K -c $K/bootmain.c
 	$(CC) $(CFLAGS) -o $K/bootasm.o -fno-pic -nostdinc -I$K -c $K/bootasm.S
 	$(LD) $(LDFLAGS) -N -e start -Ttext 0x7C00 -o $K/bootblock.o $K/bootasm.o $K/bootmain.o
-	$(OBJDUMP) -S $K/bootblock.o > $K/bootblock.asm
+	$(OBJDUMP) -M intel -S $K/bootblock.o > $K/bootblock.asm
 	$(OBJCOPY) -S -O binary -j .text $K/bootblock.o $K/bootblock
 	utils/sign.pl $K/bootblock
 
@@ -133,18 +133,18 @@ $K/entryother: $K/entryother.S
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$K -o $K/entryother.o -c $K/entryother.S
 	$(LD) $(LDFLAGS) -N -e start -Ttext 0x7000 -o $K/bootblockother.o $K/entryother.o
 	$(OBJCOPY) -S -O binary -j .text $K/bootblockother.o $K/entryother
-	$(OBJDUMP) -S $K/bootblockother.o > $K/entryother.asm
+	$(OBJDUMP) -M intel -S $K/bootblockother.o > $K/entryother.asm
 
 $K/initcode: $K/initcode.S
 	$(CC) $(CFLAGS) -nostdinc -I. -c $K/initcode.S -o $K/initcode.o
 	$(LD) $(LDFLAGS) -N -e start -Ttext 0x1000 -o $K/initcode.out $K/initcode.o
 	$(OBJCOPY) -S -O binary $K/initcode.out $K/initcode
-	$(OBJDUMP) -S $K/initcode.o > $K/initcode.asm
+	$(OBJDUMP) -M intel -S $K/initcode.o > $K/initcode.asm
 
 $K/kernel: $(KERNEL_OBJS) $K/entry.o $K/entryother $K/initcode $K/kernel.ld
 	$(LD) $(LDFLAGS) -T $K/kernel.ld -o $K/kernel $K/entry.o $(KERNEL_OBJS) -b binary $K/initcode $K/entryother
-	$(OBJDUMP) -S $K/kernel > $K/kernel.asm
-	$(OBJDUMP) -t $K/kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $K/kernel.sym
+	$(OBJDUMP) -M intel -S $K/kernel > $K/kernel.asm
+	$(OBJDUMP) -M intel -t $K/kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $K/kernel.sym
 
 $K/vectors.S: utils/vectors.pl
 	utils/vectors.pl > $K/vectors.S
@@ -153,14 +153,14 @@ ULIB = $U/ulib.o $U/usys.o $U/printf.o $U/umalloc.o
 
 _%: %.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0x1000 -o $@ $^
-	$(OBJDUMP) -S $@ > $*.asm
-	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $*.sym
+	$(OBJDUMP) -M intel -S $@ > $*.asm
+	$(OBJDUMP) -M intel -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $*.sym
 
 # forktest has less library code linked in - needs to be small
 # in order to be able to max out the proc table.
 $U/_forktest: $U/forktest.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0x1000 -o $U/_forktest $U/forktest.o $U/ulib.o $U/usys.o
-	$(OBJDUMP) -S $U/_forktest > $U/forktest.asm
+	$(OBJDUMP) -M intel -S $U/_forktest > $U/forktest.asm
 
 utils/mkfs: utils/mkfs.c $K/fs.h
 	$(CC) -Werror -Wall -I. -o utils/mkfs utils/mkfs.c
