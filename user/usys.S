@@ -1,11 +1,13 @@
 #include "kernel/syscall.h"
 #include "kernel/traps.h"
 
+.intel_syntax noprefix
+
 #define SYSCALL(name) \
   .globl name; \
   name: \
-    movl $SYS_ ## name, %eax; \
-    int $T_SYSCALL; \
+    mov eax, SYS_ ## name; \
+    int T_SYSCALL; \
     ret
 
 SYSCALL(fork)
