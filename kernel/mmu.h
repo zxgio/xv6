@@ -16,7 +16,7 @@
 #define SEG_KDATA 2 // kernel data+stack
 #define SEG_UCODE 3 // user code
 #define SEG_UDATA 4 // user data+stack
-#define SEG_TSS 5 // this process's task state
+#define SEG_TSS   5 // this process's task state
 
 // cpu->gdt[NSEGS] holds the above segments.
 #define NSEGS 6

@@ -15,10 +15,10 @@ start:
   cli                         # BIOS enabled interrupts; disable
 
   # Zero data segment registers DS, ES, and SS.
-  xor ax,ax             # Set ax to zero
-  mov ax,ds             # -> Data Segment
-  mov ax,es             # -> Extra Segment
-  mov ax,ss             # -> Stack Segment
+  xor ax, ax            # Set ax to zero
+  mov ds, ax            # -> Data Segment
+  mov es, ax            # -> Extra Segment
+  mov ss, ax            # -> Stack Segment
 
   # Physical address line A20 is tied to zero so that the first PCs
   # with 2 MB would run software that assumed 1 MB.  Undo that.
@@ -41,7 +41,7 @@ seta20.2:
   # Switch from real to protected mode.  Use a bootstrap GDT that makes
   # virtual addresses map directly to physical addresses so that the
   # effective memory map doesn't change during the transition.
-  lgdt    gdtdesc
+  lgdt gdtdesc
   mov eax, cr0
   or eax, offset CR0_PE
   mov cr0, eax

@@ -19,63 +19,65 @@
 #
 # This code combines elements of bootasm.S and entry.S.
 
+.intel_syntax noprefix
+
 .code16
 .globl start
 start:
   cli
 
   # Zero data segment registers DS, ES, and SS.
-  xorw    %ax,%ax
-  movw    %ax,%ds
-  movw    %ax,%es
-  movw    %ax,%ss
+  xor ax, ax
+  mov ds, ax
+  mov es, ax
+  mov ss, ax
 
   # Switch from real to protected mode.  Use a bootstrap GDT that makes
   # virtual addresses map directly to physical addresses so that the
   # effective memory map doesn't change during the transition.
-  lgdt    gdtdesc
-  movl    %cr0, %eax
-  orl     $CR0_PE, %eax
-  movl    %eax, %cr0
+  lgdt gdtdesc
+  mov eax, cr0
+  or eax, offset CR0_PE
+  mov cr0, eax
 
   # Complete the transition to 32-bit protected mode by using a long jmp
   # to reload %cs and %eip.  The segment descriptors are set up with no
   # translation, so that the mapping is still the identity mapping.
-  ljmpl    $(SEG_KCODE<<3), $(start32)
+  jmp far ptr (SEG_KCODE<<3) : start32
 
 .code32  # Tell assembler to generate 32-bit code now.
 start32:
   # Set up the protected-mode data segment registers
-  movw    $(SEG_KDATA<<3), %ax    # Our data segment selector
-  movw    %ax, %ds                # -> DS: Data Segment
-  movw    %ax, %es                # -> ES: Extra Segment
-  movw    %ax, %ss                # -> SS: Stack Segment
-  movw    $0, %ax                 # Zero segments not ready for use
-  movw    %ax, %fs                # -> FS
-  movw    %ax, %gs                # -> GS
+  mov ax, offset (SEG_KDATA<<3)   # Our data segment selector
+  mov ds, ax                      # -> DS: Data Segment
+  mov es, ax                      # -> ES: Extra Segment
+  mov ss, ax                      # -> SS: Stack Segment
+  mov ax, offset 0                # Zero segments not ready for use
+  mov fs, ax                      # -> FS
+  mov gs, ax                      # -> GS
 
   # Turn on page size extension for 4Mbyte pages
-  movl    %cr4, %eax
-  orl     $(CR4_PSE), %eax
-  movl    %eax, %cr4
+  mov eax, cr4
+  or eax, offset CR4_PSE
+  mov cr4, eax
   # Use entrypgdir as our initial page table
-  movl    (start-12), %eax
-  movl    %eax, %cr3
+  mov eax, [start-12]
+  mov cr3, eax
   # Turn on paging.
-  movl    %cr0, %eax
-  orl     $(CR0_PE|CR0_PG|CR0_WP), %eax
-  movl    %eax, %cr0
+  mov eax, cr0
+  or eax, offset (CR0_PE|CR0_PG|CR0_WP)
+  mov cr0, eax
 
   # Switch to the stack allocated by startothers()
-  movl    (start-4), %esp
+  mov esp, [start - 4]
   # Call mpenter()
-  call	 *(start-8)
+  call [start-8]
 
-  movw    $0x8a00, %ax
-  movw    %ax, %dx
-  outw    %ax, %dx
-  movw    $0x8ae0, %ax
-  outw    %ax, %dx
+  mov ax, offset 0x8a00
+  mov dx, ax
+  out dx, ax
+  mov ax, offset 0x8ae0
+  out dx, ax
 spin:
   jmp     spin
 
@@ -84,7 +86,6 @@ gdt:
   SEG_NULLASM
   SEG_ASM(STA_X|STA_R, 0, 0xffffffff)
   SEG_ASM(STA_W, 0, 0xffffffff)
-
 
 gdtdesc:
   .word   (gdtdesc - gdt - 1)
