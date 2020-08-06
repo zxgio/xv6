@@ -327,10 +327,10 @@ void scheduler(void)
 	struct proc *p;
 	struct cpu *c = mycpu();
 	c->proc = 0;
-	// Enable interrupts on this processor.
-	sti();
 
 	for (;;) {
+		// Enable interrupts on this processor.
+		sti();
 		int ran_something = 0;
 
 		// Loop over process table looking for process to run.
@@ -356,7 +356,7 @@ void scheduler(void)
 		}
 		release(&ptable.lock);
 
-		if (ran_something == 0)
+		if (ran_something == 0 && ncpu == 1)
 			halt();
 	}
 }
