@@ -23,6 +23,8 @@
 #include "mmu.h"
 #include "param.h"
 
+.intel_syntax noprefix
+
 # Multiboot header.  Data to direct multiboot loader.
 .p2align 2
 .text
@@ -44,25 +46,25 @@ _start = V2P_WO(entry)
 .globl entry
 entry:
   # Turn on page size extension for 4Mbyte pages
-  movl    %cr4, %eax
-  orl     $(CR4_PSE), %eax
-  movl    %eax, %cr4
+  mov eax, cr4
+  or eax, CR4_PSE
+  mov cr4, eax
   # Set page directory
-  movl    $(V2P_WO(entrypgdir)), %eax
-  movl    %eax, %cr3
+  mov eax, offset V2P_WO(entrypgdir)
+  mov cr3, eax
   # Turn on paging.
-  movl    %cr0, %eax
-  orl     $(CR0_PG|CR0_WP), %eax
-  movl    %eax, %cr0
+  mov eax, cr0
+  or eax, (CR0_PG|CR0_WP)
+  mov cr0, eax
 
   # Set up the stack pointer.
-  movl $(stack + KSTACKSIZE), %esp
+  mov esp, offset stack + KSTACKSIZE
 
   # Jump to main(), and switch to executing at
   # high addresses. The indirect call is needed because
   # the assembler produces a PC-relative instruction
   # for a direct jump.
-  mov $main, %eax
-  jmp *%eax
+  mov eax, offset main
+  jmp eax
 
 .comm stack, KSTACKSIZE
