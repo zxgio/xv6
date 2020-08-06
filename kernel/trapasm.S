@@ -1,32 +1,34 @@
 #include "mmu.h"
 
+.intel_syntax noprefix
+
   # vectors.S sends all traps here.
 .globl alltraps
 alltraps:
   # Build trap frame.
-  pushl %ds
-  pushl %es
-  pushl %fs
-  pushl %gs
-  pushal
+  push ds
+  push es
+  push fs
+  push gs
+  pusha
 
   # Set up data segments.
-  movw $(SEG_KDATA<<3), %ax
-  movw %ax, %ds
-  movw %ax, %es
+  mov ax, offset (SEG_KDATA<<3)
+  mov ds, ax
+  mov es, ax
 
   # Call trap(tf), where tf=%esp
-  pushl %esp
+  push esp
   call trap
-  addl $4, %esp
+  add esp, 4
 
   # Return falls through to trapret...
 .globl trapret
 trapret:
-  popal
-  popl %gs
-  popl %fs
-  popl %es
-  popl %ds
-  addl $0x8, %esp  # trapno and errcode
+  popa
+  pop gs
+  pop fs
+  pop es
+  pop ds
+  add esp, 8 # trapno and errcode
   iret
