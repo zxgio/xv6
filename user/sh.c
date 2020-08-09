@@ -372,9 +372,6 @@ struct cmd *parseredirs(struct cmd *cmd, char **ps, char *es)
 		case '>':
 			cmd = redircmd(cmd, q, eq, O_WRONLY | O_CREATE, 1);
 			break;
-		case '+': // >>
-			cmd = redircmd(cmd, q, eq, O_WRONLY | O_CREATE, 1);
-			break;
 		}
 	}
 	return cmd;
