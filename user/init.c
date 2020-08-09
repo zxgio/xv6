@@ -20,7 +20,11 @@ int main(void)
 	dup(1); // stderr
 
 	for (;;) {
-		printf(1, "init: starting sh\n");
+		printf(1, "\n"
+			"-----------------------------------------\n"
+			"xv6 SETI built on " __DATE__ " at " __TIME__ "\n"
+			"-----------------------------------------\n"
+			"\ninit: starting sh\n");
 		pid = fork();
 		if (pid < 0) {
 			printf(1, "init: fork failed\n");
