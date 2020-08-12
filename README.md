@@ -6,7 +6,8 @@ Alcune cose sono state modificate, in particolare:
 - aggiunto comando `poweroff`, e relativa system call, per "spegnere" xv6 (funziona solo con QEMU)
 - la pagina 0 non viene mappata
 - stdin/out/error sono aperti con i permessi giusti
-- lo scheduler non va in busy loop quando non c'è nulla da eseguire
+- lo scheduler, su CPU singola, non va in busy loop quando non c'è nulla da eseguire
+- la sintassi per le parti in assembler è Intel (invece di AT&T)
 
 ## Software necessario/suggerito (istruzioni per Ubuntu 20.04)
 
