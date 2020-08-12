@@ -17,10 +17,6 @@ Installate i pacchetti: `build-essential gcc-multilib git cscope qemu-system`
 
 Suggerisco l'uso di [GEF](https://github.com/hugsy/gef); potrebbe tornarvi utile il mio [cheat-sheet](https://github.com/zxgio/gdb_gef-cheatsheet)
 
-### liquidprompt
-
-Assolutamente non necessario per xv6, ma visto che alcuni studenti mi hanno chiesto cosa usavo... se volete un prompt più "ricco" su bash/zsh: [liquidprompt](https://github.com/nojhan/liquidprompt)
-
 ## Come compilare/lanciare xv6
 
 Una volta clonato questo repository (`git clone https://github.com/zxgio/xv6-SETI.git`) potrete usare:
