@@ -97,7 +97,7 @@ UPROGS = \
 	$U/_wc\
 	$U/_zombie
 
-all: fs.img xv6.img cscope.out
+all: fs.img xv6.img xv6memfs.img cscope.out
 
 cscope.out: $(wildcard *.[ch])
 	cscope -q -b -k -R
@@ -108,6 +108,9 @@ QEMUOPTS = -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,
 
 qemu-nox: fs.img xv6.img
 	$(QEMU) -nographic $(QEMUOPTS)
+
+qemu-memfs: xv6memfs.img
+	$(QEMU) -nographic -drive file=xv6memfs.img,index=0,media=disk,format=raw -smp $(CPUS) -m 256
 
 .gdbinit: .gdbinit.tmpl
 	sed "s/localhost:1234/localhost:$(GDBPORT)/" < $^ > $@
@@ -120,6 +123,11 @@ xv6.img: $K/bootblock $K/kernel
 	dd if=/dev/zero of=xv6.img count=512 # 256 k = 512 blocks of 512 bytes
 	dd if=$K/bootblock of=xv6.img conv=notrunc
 	dd if=$K/kernel of=xv6.img seek=1 conv=notrunc
+
+xv6memfs.img: $K/bootblock $K/kernelmemfs
+	dd if=/dev/zero of=xv6memfs.img count=512
+	dd if=$K/bootblock of=xv6memfs.img conv=notrunc
+	dd if=$K/kernelmemfs of=xv6memfs.img seek=1 conv=notrunc
 
 $K/bootblock: $K/bootasm.S $K/bootmain.c
 	$(CC) $(CFLAGS) -O0 -o $K/bootmain.o -fno-pic -O -nostdinc -I$K -c $K/bootmain.c
@@ -145,6 +153,18 @@ $K/kernel: $(KERNEL_OBJS) $K/entry.o $K/entryother $K/initcode $K/kernel.ld
 	$(LD) $(LDFLAGS) -T $K/kernel.ld -o $K/kernel $K/entry.o $(KERNEL_OBJS) -b binary $K/initcode $K/entryother
 	$(OBJDUMP) -M intel -S $K/kernel > $K/kernel.asm
 	$(OBJDUMP) -M intel -t $K/kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $K/kernel.sym
+
+# kernelmemfs is a copy of kernel that maintains the
+# disk image in memory instead of writing to a disk.
+# This is not so useful for testing persistent storage or
+# exploring disk buffering implementations, but it is
+# great for testing the kernel on real hardware without
+# needing a scratch disk.
+MEMFSOBJS = $(filter-out $K/ide.o,$(KERNEL_OBJS)) $K/memide.o
+$K/kernelmemfs: $(MEMFSOBJS) $K/entry.o $K/entryother $K/initcode $K/kernel.ld fs.img
+	$(LD) $(LDFLAGS) -T $K/kernel.ld -o $K/kernelmemfs $K/entry.o  $(MEMFSOBJS) -b binary $K/initcode $K/entryother fs.img
+	$(OBJDUMP) -M intel -S $K/kernelmemfs > $K/kernelmemfs.asm
+	$(OBJDUMP) -M intel -t $K/kernelmemfs | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $K/kernelmemfs.sym
 
 $K/vectors.S: utils/vectors.pl
 	utils/vectors.pl > $K/vectors.S
