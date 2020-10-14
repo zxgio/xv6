@@ -105,7 +105,7 @@ static void bfree(int dev, uint b)
 // to provide a place for synchronizing access
 // to inodes used by multiple processes. The cached
 // inodes include book-keeping information that is
-// not stored on disk: ip->ref and ip->valid.
+// not stored on disk: ip->ref_count and ip->valid.
 //
 // An inode and its in-memory representation go through a
 // sequence of states before they can be used by the
@@ -116,7 +116,7 @@ static void bfree(int dev, uint b)
 //   the reference and link counts have fallen to zero.
 //
 // * Referencing in cache: an entry in the inode cache
-//   is free if ip->ref is zero. Otherwise ip->ref tracks
+//   is free if ip->ref_count is zero. Otherwise ip->ref_count tracks
 //   the number of in-memory pointers to the entry (open
 //   files and current directories). iget() finds or
 //   creates a cache entry and increments its ref; iput()
@@ -126,7 +126,7 @@ static void bfree(int dev, uint b)
 //   cache entry is only correct when ip->valid is 1.
 //   ilock() reads the inode from
 //   the disk and sets ip->valid, while iput() clears
-//   ip->valid if ip->ref has fallen to zero.
+//   ip->valid if ip->ref_count has fallen to zero.
 //
 // * Locked: file system code may only examine and modify
 //   the information in an inode and its content if it
@@ -143,7 +143,7 @@ static void bfree(int dev, uint b)
 // get a long-term reference to an inode (as for an open file)
 // and only lock it for short periods (e.g., in read()).
 // The separation also helps avoid deadlock and races during
-// pathname lookup. iget() increments ip->ref so that the inode
+// pathname lookup. iget() increments ip->ref_count so that the inode
 // stays cached and pointers to it remain valid.
 //
 // Many internal file system functions expect the caller to
@@ -151,7 +151,7 @@ static void bfree(int dev, uint b)
 // multi-step atomic operations.
 //
 // The icache.lock spin-lock protects the allocation of icache
-// entries. Since ip->ref indicates whether an entry is free,
+// entries. Since ip->ref_count indicates whether an entry is free,
 // and ip->dev and ip->inum indicate which i-node an entry
 // holds, one must hold icache.lock while using any of those fields.
 //
@@ -239,12 +239,12 @@ static struct inode *iget(uint dev, uint inum)
 	// Is the inode already cached?
 	empty = 0;
 	for (ip = &icache.inode[0]; ip < &icache.inode[NINODE]; ip++) {
-		if (ip->ref > 0 && ip->dev == dev && ip->inum == inum) {
-			ip->ref++;
+		if (ip->ref_count > 0 && ip->dev == dev && ip->inum == inum) {
+			ip->ref_count++;
 			release(&icache.lock);
 			return ip;
 		}
-		if (empty == 0 && ip->ref == 0) // Remember empty slot.
+		if (empty == 0 && ip->ref_count == 0) // Remember empty slot.
 			empty = ip;
 	}
 
@@ -255,7 +255,7 @@ static struct inode *iget(uint dev, uint inum)
 	ip = empty;
 	ip->dev = dev;
 	ip->inum = inum;
-	ip->ref = 1;
+	ip->ref_count = 1;
 	ip->valid = 0;
 	release(&icache.lock);
 
@@ -267,7 +267,7 @@ static struct inode *iget(uint dev, uint inum)
 struct inode *idup(struct inode *ip)
 {
 	acquire(&icache.lock);
-	ip->ref++;
+	ip->ref_count++;
 	release(&icache.lock);
 	return ip;
 }
@@ -279,7 +279,7 @@ void ilock(struct inode *ip)
 	struct buf *bp;
 	struct dinode *dip;
 
-	if (ip == 0 || ip->ref < 1)
+	if (ip == 0 || ip->ref_count < 1)
 		panic("ilock");
 
 	acquiresleep(&ip->lock);
@@ -303,7 +303,7 @@ void ilock(struct inode *ip)
 // Unlock the given inode.
 void iunlock(struct inode *ip)
 {
-	if (ip == 0 || !holdingsleep(&ip->lock) || ip->ref < 1)
+	if (ip == 0 || !holdingsleep(&ip->lock) || ip->ref_count < 1)
 		panic("iunlock");
 
 	releasesleep(&ip->lock);
@@ -321,7 +321,7 @@ void iput(struct inode *ip)
 	acquiresleep(&ip->lock);
 	if (ip->valid && ip->nlink == 0) {
 		acquire(&icache.lock);
-		int r = ip->ref;
+		int r = ip->ref_count;
 		release(&icache.lock);
 		if (r == 1) {
 			// inode has no links and no other references: truncate and free.
@@ -334,7 +334,7 @@ void iput(struct inode *ip)
 	releasesleep(&ip->lock);
 
 	acquire(&icache.lock);
-	ip->ref--;
+	ip->ref_count--;
 	release(&icache.lock);
 }
 
