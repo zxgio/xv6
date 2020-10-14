@@ -28,8 +28,8 @@ struct file *filealloc(void)
 
 	acquire(&ftable.lock);
 	for (f = ftable.file; f < ftable.file + NFILE; f++) {
-		if (f->ref == 0) {
-			f->ref = 1;
+		if (f->ref_count == 0) {
+			f->ref_count = 1;
 			release(&ftable.lock);
 			return f;
 		}
@@ -42,9 +42,9 @@ struct file *filealloc(void)
 struct file *filedup(struct file *f)
 {
 	acquire(&ftable.lock);
-	if (f->ref < 1)
+	if (f->ref_count < 1)
 		panic("filedup");
-	f->ref++;
+	f->ref_count++;
 	release(&ftable.lock);
 	return f;
 }
@@ -55,14 +55,14 @@ void fileclose(struct file *f)
 	struct file ff;
 
 	acquire(&ftable.lock);
-	if (f->ref < 1)
+	if (f->ref_count < 1)
 		panic("fileclose");
-	if (--f->ref > 0) {
+	if (--f->ref_count > 0) {
 		release(&ftable.lock);
 		return;
 	}
 	ff = *f;
-	f->ref = 0;
+	f->ref_count = 0;
 	f->type = FD_NONE;
 	release(&ftable.lock);
 
