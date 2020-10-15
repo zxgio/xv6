@@ -25,10 +25,12 @@ Una volta clonato questo repository (`git clone https://github.com/zxgio/xv6-SET
 
 e, per mandarlo in esecuzione:
 - `./run`, scorciatoia per `\make qemu-nox`, lancia xv6; uscite con `poweroff` oppure con la sequenza `ctrl+A`, seguita da `x`
-  - nota: il backslash prima di `make` evita l'espansione dell'alias, nel caso usiate [Generic Colouriser](https://github.com/garabik/grc), per fare in modo che non ci siano ritardi nell'output dovuti al buffering
+  - nota: il backslash prima di `make` evita l'espansione dell'alias; utile, nel caso usiate [Generic Colouriser](https://github.com/garabik/grc), per fare in modo che non ci siano ritardi nell'output dovuti al buffering
 - `./debug`, scorciatoria per `\make qmeu-nox-gdb`, prepara xv6 per il debugging, per cui dovrete lanciare gdb da un altro terminale
   - se lanciando gdb ottenete: `warning: File "....xv6/.gdbinit" auto-loading has been declined ...`
     aggiungete la direttiva `add-auto-load-safe-path` al vostro `~/.gdbinit` (come suggerito da gdb stesso)
 
 Durante l'esecuzione `ctrl+P`, catturato dalla console di xv6, mostra la lista dei processi.
-Invece, `ctrl+A`, seguito da `c`, (dis)attiva la console di QEMU. Dalla console potete uscire dall'emulazione con `q` o, per esempio, vedere la tabella delle pagine con `info mem`.
+Invece, `ctrl+A`, seguito da:
+- `c`, (dis)attiva la console di QEMU. Dalla console potete uscire dall'emulazione con `q` o, per esempio, vedere la tabella delle pagine con `info mem`.
+- `x`, termina QEmu
