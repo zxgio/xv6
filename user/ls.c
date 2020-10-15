@@ -21,6 +21,16 @@ char *fmtname(char *path)
 	return buf;
 }
 
+char f_type(int type)
+{
+	switch(type) {
+	case T_DEV: return 'c';
+	case T_DIR: return 'd';
+	case T_FILE: return '-';
+	}
+	return '?';
+}
+
 void ls(char *path)
 {
 	char buf[512], *p;
@@ -41,8 +51,7 @@ void ls(char *path)
 
 	switch (st.type) {
 	case T_FILE:
-		printf(1, "%s %d %d %d\n", fmtname(path), st.type, st.ino,
-		       st.size);
+		printf(1, "%c %s %d (inode: %d)\n", f_type(st.type), fmtname(path), st.size, st.ino);
 		break;
 
 	case T_DIR:
@@ -62,8 +71,7 @@ void ls(char *path)
 				printf(1, "ls: cannot stat %s\n", buf);
 				continue;
 			}
-			printf(1, "%s %d %d %d\n", fmtname(buf), st.type,
-			       st.ino, st.size);
+			printf(1, "%c %s %d (inode: %d)\n", f_type(st.type), fmtname(buf), st.size, st.ino);
 		}
 		break;
 	}
