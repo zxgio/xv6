@@ -100,7 +100,7 @@ UPROGS = \
 all: fs.img xv6.img xv6memfs.img cscope.out
 
 cscope.out: $(wildcard *.[ch])
-	cscope -q -b -k -R
+	cscope -q -b -k -R $K/*.[ch]
 	@echo -e 'You might want to:\nexport CSCOPE_DB=$$(pwd)/cscope.out'
 
 # run in emulators
@@ -207,4 +207,4 @@ clean:
 	xv6memfs.img utils/mkfs .gdbinit \
 	$(UPROGS)
 
-.PHONY: clean
+.PHONY: clean qemu-nox qemu-nox-gdb
