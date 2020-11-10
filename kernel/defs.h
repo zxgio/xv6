@@ -156,9 +156,6 @@ int fetchint(uint, int *);
 int fetchstr(uint, char **);
 void syscall(void);
 
-// timer.c
-void timerinit(void);
-
 // trap.c
 void idtinit(void);
 extern uint ticks;
