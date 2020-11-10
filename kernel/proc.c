@@ -505,7 +505,7 @@ void procdump(void)
 				  [SLEEPING] "sleep ", [RUNNABLE] "runble",
 				  [RUNNING] "run   ",  [ZOMBIE] "zombie" };
 	int i;
-	struct proc *p;
+	struct proc *p, *parent;
 	char *state;
 	uint pc[10];
 
@@ -517,7 +517,8 @@ void procdump(void)
 			state = states[p->state];
 		else
 			state = "???";
-		cprintf("%d %s %s", p->pid, state, p->name);
+		parent = p->parent;
+		cprintf("%d %d %s %s", p->pid, (parent ? parent->pid : 1), state, p->name);
 		if (p->state == SLEEPING) {
 			getcallerpcs((uint *)p->context->ebp + 2, pc);
 			for (i = 0; i < 10 && pc[i] != 0; i++)
