@@ -203,7 +203,7 @@ clean:
 	$K/*.o $K/*.d $K/*.asm $K/*.sym \
 	$U/*.o $U/*.d $U/*.asm $U/*.sym \
 	$K/vectors.S $K/bootblock $K/entryother \
-	$K/initcode $K/initcode.out $K/kernel xv6.img fs.img kernelmemfs \
+	$K/initcode $K/initcode.out $K/kernel xv6.img fs.img $K/kernelmemfs \
 	xv6memfs.img utils/mkfs .gdbinit \
 	$(UPROGS)
 
