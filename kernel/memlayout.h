@@ -1,7 +1,7 @@
 // Memory layout
 
 #define EXTMEM     0x100000 // Start of extended memory (1M)
-#define PHYSTOP  (128*1024*1024) // (was: 0xE000000) Top physical memory
+#define PHYSTOP  (64*1024*1024) // (was: 0xE000000) Top physical memory
 #define DEVSPACE 0xFE000000 // Other devices are at high addresses
 
 // Key addresses for address space layout (see kmap in vm.c for layout)

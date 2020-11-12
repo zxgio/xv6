@@ -108,13 +108,13 @@ cscope.out: $(wildcard *.[ch])
 	@echo -e 'You might want to:\nexport CSCOPE_DB=$$(pwd)/cscope.out'
 
 # run in emulators
-QEMUOPTS = -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 128 $(QEMUEXTRA)
+QEMUOPTS = -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 64 $(QEMUEXTRA)
 
 qemu-nox: fs.img xv6.img
 	$(QEMU) -nographic $(QEMUOPTS)
 
 qemu-memfs: xv6memfs.img
-	$(QEMU) -nographic -drive file=xv6memfs.img,index=0,media=disk,format=raw -smp $(CPUS) -m 128
+	$(QEMU) -nographic -drive file=xv6memfs.img,index=0,media=disk,format=raw -smp $(CPUS) -m 64
 
 .gdbinit: .gdbinit.tmpl
 	sed "s/localhost:1234/localhost:$(GDBPORT)/" < $^ > $@

@@ -1427,7 +1427,7 @@ void sbrktest(void)
 	wait();
 
 	// can one grow address space to something big?
-#define BIG (100 * 1024 * 1024)
+#define BIG (50 * 1024 * 1024)
 	a = sbrk(0);
 	amt = (BIG) - (uint)a;
 	p = sbrk(amt);
