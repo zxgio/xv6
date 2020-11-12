@@ -32,7 +32,7 @@ AS = gas
 LD = ld
 OBJCOPY = objcopy
 OBJDUMP = objdump
-CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -Og -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer -I. -fcf-protection=none
+CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -Og -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer -I.
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 ASFLAGS = -m32 -gdwarf-2 -Wa,-divide -I.
 LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1) -z noseparate-code # FreeBSD ld wants ``elf_i386_fbsd''
@@ -43,6 +43,10 @@ CFLAGS += -fno-pie -no-pie
 endif
 ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]nopie'),)
 CFLAGS += -fno-pie -nopie
+endif
+# Disable control-flow protection when possible
+ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep fcf-protection),)
+CFLAGS += -fcf-protection=none
 endif
 
 K=kernel
