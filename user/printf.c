@@ -1,5 +1,3 @@
-#include "kernel/types.h"
-#include "kernel/stat.h"
 #include "user/user.h"
 
 static void putc(int fd, char c)
