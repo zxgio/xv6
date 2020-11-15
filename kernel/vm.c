@@ -123,8 +123,7 @@ pde_t *setupkvm(void)
 	if (P2V(PHYSTOP) > (void *)DEVSPACE)
 		panic("PHYSTOP too high");
 	for (k = kmap; k < &kmap[NELEM(kmap)]; k++)
-		if (mappages(pgdir, k->virt, k->phys_end - k->phys_start,
-			     (uint)k->phys_start, k->perm) < 0) {
+		if (mappages(pgdir, k->virt, k->phys_end - k->phys_start, (uint)k->phys_start, k->perm) < 0) {
 			freevm(pgdir);
 			return 0;
 		}
@@ -228,8 +227,7 @@ int allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
 			return 0;
 		}
 		memset(mem, 0, PGSIZE);
-		if (mappages(pgdir, (char *)a, PGSIZE, V2P(mem),
-			     PTE_W | PTE_U) < 0) {
+		if (mappages(pgdir, (char *)a, PGSIZE, V2P(mem), PTE_W | PTE_U) < 0) {
 			cprintf("allocuvm out of memory (2)\n");
 			deallocuvm(pgdir, newsz, oldsz);
 			kfree(mem);

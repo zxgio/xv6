@@ -71,23 +71,19 @@ void trap(struct trapframe *tf)
 		break;
 	case T_IRQ0 + 7:
 	case T_IRQ0 + IRQ_SPURIOUS:
-		cprintf("cpu%d: spurious interrupt at %x:%x\n", cpuid(), tf->cs,
-			tf->eip);
+		cprintf("cpu%d: spurious interrupt at %x:%x\n", cpuid(), tf->cs, tf->eip);
 		lapiceoi();
 		break;
 
 	default:
 		if (myproc() == 0 || (tf->cs & 3) == 0) {
 			// In kernel, it must be our mistake.
-			cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
-				tf->trapno, cpuid(), tf->eip, rcr2());
+			cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n", tf->trapno, cpuid(), tf->eip, rcr2());
 			panic("trap");
 		}
 		// In user space, assume process misbehaved.
-		cprintf("pid %d %s: trap %d err %d on cpu %d "
-			"eip 0x%x addr 0x%x--kill proc\n",
-			myproc()->pid, myproc()->name, tf->trapno, tf->err,
-			cpuid(), tf->eip, rcr2());
+		cprintf("pid %d %s: trap %d err %d on cpu %d eip 0x%x addr 0x%x--kill proc\n",
+			myproc()->pid, myproc()->name, tf->trapno, tf->err, cpuid(), tf->eip, rcr2());
 		myproc()->killed = 1;
 	}
 
@@ -99,8 +95,7 @@ void trap(struct trapframe *tf)
 
 	// Force process to give up CPU on clock tick.
 	// If interrupts were on while locks held, would need to check nlock.
-	if (myproc() && myproc()->state == RUNNING &&
-	    tf->trapno == T_IRQ0 + IRQ_TIMER)
+	if (myproc() && myproc()->state == RUNNING && tf->trapno == T_IRQ0 + IRQ_TIMER)
 		yield();
 
 	// Check if the process has been killed since we yielded
