@@ -99,7 +99,9 @@ UPROGS = \
 	$U/_stressfs\
 	$U/_usertests\
 	$U/_wc\
-	$U/_zombie
+	$U/_zombie \
+	$U/_foo \
+	$U/_bar
 
 all: fs.img xv6.img xv6memfs.img cscope.out
 
