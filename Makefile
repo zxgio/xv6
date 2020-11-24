@@ -188,6 +188,10 @@ $U/_forktest: $U/forktest.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0x1000 -o $U/_forktest $U/forktest.o $U/ulib.o $U/usys.o
 	$(OBJDUMP) -M intel -S $U/_forktest > $U/forktest.asm
 
+$U/_foo: $U/foo.o $(ULIB)
+	$(LD) $(LDFLAGS) -N -e main -Ttext 0x5000 -o $U/_foo $U/foo.o $U/ulib.o $U/usys.o
+	$(OBJDUMP) -M intel -S $U/_foo > $U/foo.asm
+
 utils/mkfs: utils/mkfs.c $K/fs.h
 	$(CC) -Werror -Wall -I. -o utils/mkfs utils/mkfs.c
 

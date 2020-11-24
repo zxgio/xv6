@@ -1,6 +1,6 @@
 #include "user/user.h"
 
-int main()
+void bar()
 {
 	asm(
 	".intel_syntax noprefix;"
@@ -13,4 +13,9 @@ int main()
 	"	jmp .loop;"
 	".att_syntax;"
 	);
+}
+
+int main()
+{
+	bar();
 }
